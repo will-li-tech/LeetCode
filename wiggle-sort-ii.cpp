@@ -1,30 +1,70 @@
 //https://leetcode.com/problems/wiggle-sort-ii/
 
 
+
+//1 1 2 2 2 5 6
+//1 2 1 5 2 6 2
+
+//1 1 2 2 5 6
+//1 2 1 5 2 6
+
+
 class Solution {
-public:void wiggleSort(vector<int>& nums) {
-    int n = nums.size();
+public:
+		
+	int kthNum(int k, vector<int> &a)
+	{
+		const int sz=a.size();
+		if(sz==0)	return 1<<31;
+		if(k<=1)	return a[0];
+		if(k>=sz)	return a.back();
+		for(int left=0, right=sz-1, mid; left<=right; )
+		{
+			mid=left+((right-left)>>1);
+			int cnt=0, last=left;
+			swap(a[left], a[mid]);
+			for(int i=left+1; i<=right; ++i)
+				if(a[i]<=a[left])
+				{
+					++cnt;
+					swap(a[i], a[++last]);
+				}
+			if(cnt==k-1)
+				return a[left];
+			swap(a[left], a[last]);
+			if(cnt>k-1)
+				right=last-1;
+			else
+			{
+				left=last+1;
+				k-=cnt+1;
+			}
+		}
+		return 1<<31;
+	}
 
-    // Find a median.
-    auto midptr = nums.begin() + n / 2;
-    nth_element(nums.begin(), midptr, nums.end());
-    int mid = *midptr;
 
-    // Index-rewiring.
-    #define A(i) nums[(1+2*(i)) % (n|1)]
-
-    // 3-way-partition-to-wiggly in O(n) time with O(1) space.
-    int i = 0, j = 0, k = n - 1;
-    while (j <= k) {
-        if (A(j) > mid)
-            swap(A(i++), A(j++));
-        else if (A(j) < mid)
-            swap(A(j), A(k--));
-        else
-            j++;
-    }
-}
-
+	void wiggleSort(vector<int> &a)
+	{
+		int sz=a.size(), k=(sz>>1)+(sz&1);
+		int val=kthNum(k, a);
+		cout<<val<<endl;
+		int p1=(sz&1)?(sz-1):(sz-2), p2=1;
+		for(int i=0; i<sz && (p1>=0 || p2<sz); ++i)			
+			while(!(i<p2 && i%2==1) && !(i>p1 && i%2==0) && a[i]!=val)
+			{			
+				if(a[i]<val && p1>=0)
+				{
+					swap(a[i], a[p1]);
+					p1-=2;
+				}
+				if(a[i]>val && p2<sz)
+				{
+					swap(a[i], a[p2]);
+					p2+=2;
+				}
+			}	
+	}
 };
 
 
